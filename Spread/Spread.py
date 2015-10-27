@@ -62,22 +62,36 @@ def spread_calculator_wrapper():
     true_pf_files = [true_pf_folder + name for name in listdir(true_pf_folder)]
     obtained_pf_files = [obtained_pf_folder + name for name in listdir(obtained_pf_folder)]
 
-    assert(len(true_pf_files) == len(obtained_pf_files)), "Number of files in both folders should be equal"
+    if len(true_pf_files) == 0:  # True PF is not available
+        for obtained_pf_file in  obtained_pf_files:
+            obtained_pf_content = file_reader(obtained_pf_file)
+            sorted_obtained_pf_content = sort_list_of_list(obtained_pf_content)
 
-    for true_pf_file, obtained_pf_file in zip(true_pf_files, obtained_pf_files):
-        true_pf_content = file_reader(true_pf_file)
-        obtained_pf_content = file_reader(obtained_pf_file)
+            first_extreme_solution = sorted_obtained_pf_content[0]
+            second_extreme_solution = sorted_obtained_pf_content[-1]
 
-        sorted_true_pf_content = sort_list_of_list(true_pf_content)
-        sorted_obtained_pf_content = sort_list_of_list(obtained_pf_content)
+            del sorted_obtained_pf_content[0]
+            del sorted_obtained_pf_content[-1]
 
-        first_extreme_solution = sorted_true_pf_content[0]
-        second_extreme_solution = sorted_true_pf_content[-1]
+            spread = spread_calculator(sorted_obtained_pf_content, first_extreme_solution, second_extreme_solution)
+            print "Name: ", obtained_pf_file, " Spread: ", round(spread, 3)
 
-        spread = spread_calculator(sorted_obtained_pf_content, first_extreme_solution, second_extreme_solution)
-        print "Name: ", true_pf_file, " Spread: ", round(spread, 3)
+    else:
+        assert(len(true_pf_files) == len(obtained_pf_files)), "Number of files in both folders should be equal"
+        for true_pf_file, obtained_pf_file in zip(true_pf_files, obtained_pf_files):
+            true_pf_content = file_reader(true_pf_file)
+            obtained_pf_content = file_reader(obtained_pf_file)
 
-    return None
+            sorted_true_pf_content = sort_list_of_list(true_pf_content)
+            sorted_obtained_pf_content = sort_list_of_list(obtained_pf_content)
+
+            first_extreme_solution = sorted_true_pf_content[0]
+            second_extreme_solution = sorted_true_pf_content[-1]
+
+            spread = spread_calculator(sorted_obtained_pf_content, first_extreme_solution, second_extreme_solution)
+            print "Name: ", true_pf_file, " Spread: ", round(spread, 3)
+
+        return None
 
 
 spread_calculator_wrapper()
