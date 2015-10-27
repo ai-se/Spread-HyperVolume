@@ -1,0 +1,2 @@
+- Copy the obtained pareto fronts in the folder ./Pareto_Fronts. Note that the dimensions are seperated by ' '(spaces). Update the line ```def file_reader(filepath, separator=" ")``` if you are using any other seperators.
+- Execute ```python hypervolume_runner.py```
