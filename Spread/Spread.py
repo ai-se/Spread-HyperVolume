@@ -1,4 +1,6 @@
 from __future__ import division
+
+
 def spread_calculator(obtained_front, extreme_point1, extreme_point2):
     """Given a Pareto front `first_front` and the two extreme points of the
     optimal Pareto front, this function returns a metric of the diversity
@@ -58,40 +60,47 @@ def spread_calculator_wrapper():
     true_pf_folder = "./True_PF/"
     obtained_pf_folder = "./Obtained_PF/"
 
+    # Fetching the files from the folders True_PF and Obtained_PF
     from os import listdir
     true_pf_files = [true_pf_folder + name for name in listdir(true_pf_folder)]
     obtained_pf_files = [obtained_pf_folder + name for name in listdir(obtained_pf_folder)]
 
-    if len(true_pf_files) == 0:  # True PF is not available
-        for obtained_pf_file in  obtained_pf_files:
-            obtained_pf_content = file_reader(obtained_pf_file)
-            sorted_obtained_pf_content = sort_list_of_list(obtained_pf_content)
+    algorithm_names = [name.split("_")[0] for name in listdir(obtained_pf_folder)]
+    model_name = [name.split("_")[1] for name in listdir(obtained_pf_folder)]
 
-            first_extreme_solution = sorted_obtained_pf_content[0]
-            second_extreme_solution = sorted_obtained_pf_content[-1]
+    assert(len(model_name) > 0), "Please check the folder ./Obtained_PF/"
+    assert(len(set(model_name)) == 1), "The utility cannot handle more than one model at a time"
 
-            del sorted_obtained_pf_content[0]
-            del sorted_obtained_pf_content[-1]
+    model_name = model_name[-1]
 
-            spread = spread_calculator(sorted_obtained_pf_content, first_extreme_solution, second_extreme_solution)
-            print "Name: ", obtained_pf_file, " Spread: ", round(spread, 3)
+    temp_obtained_pf_files = [name for name in listdir(true_pf_folder)]
+    true_frontier_exists = False
 
+    # Checking if the True frontier is available for the tool
+    for true_pf_file in temp_obtained_pf_files:
+        if model_name == true_pf_file.split("_")[0]:
+            true_frontier_exists = True
+            true_frontier_file = true_pf_folder + true_pf_file
+
+    # Finding contents of the obtained PF files
+    contents = []
+    for obtained_pf_file in obtained_pf_files: contents.append(file_reader(obtained_pf_file))
+
+    if true_frontier_exists is True:
+        true_pf_content = file_reader(true_frontier_file)
+        sorted_true_pf_content = sort_list_of_list(true_pf_content)
+        # If frontier exists then uses the extreme points from the True frontier
+        first_extreme_solution = sorted_true_pf_content[0]
+        second_extreme_solution = sorted_true_pf_content[-1]
     else:
-        assert(len(true_pf_files) == len(obtained_pf_files)), "Number of files in both folders should be equal"
-        for true_pf_file, obtained_pf_file in zip(true_pf_files, obtained_pf_files):
-            true_pf_content = file_reader(true_pf_file)
-            obtained_pf_content = file_reader(obtained_pf_file)
+        flatten_content = [e1 for item in contents for e1 in item]
+        sorted_obtained_pf_content = sort_list_of_list(flatten_content)
+        # If frontier doesn't exist calculate the extreme points from the available obtained PF
+        first_extreme_solution = sorted_obtained_pf_content[0]
+        second_extreme_solution = sorted_obtained_pf_content[-1]
 
-            sorted_true_pf_content = sort_list_of_list(true_pf_content)
-            sorted_obtained_pf_content = sort_list_of_list(obtained_pf_content)
-
-            first_extreme_solution = sorted_true_pf_content[0]
-            second_extreme_solution = sorted_true_pf_content[-1]
-
-            spread = spread_calculator(sorted_obtained_pf_content, first_extreme_solution, second_extreme_solution)
-            print "Name: ", true_pf_file, " Spread: ", round(spread, 3)
-
-        return None
-
+    for algorithm_name, content in zip(algorithm_names, contents):
+        spread = spread_calculator(sort_list_of_list(content), first_extreme_solution, second_extreme_solution)
+        print "Name: ", algorithm_name, " Spread: ", round(spread, 3)
 
 spread_calculator_wrapper()
