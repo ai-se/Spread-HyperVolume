@@ -6,21 +6,34 @@ from random import uniform
 "RAISE LAB"
 __author__ = "Zhe Yu"
 
+###### something you might want to modify to fit your own code #######
 
-"is a binary dominate b? smaller is better"
+"definition of Better"
+def Better(a,b):
+    return a<b
+
+"get objective value of candidate; returns a list"
+def getobj(a):
+    return a.getobj()
+
+#######################################################################
+
+
+
+"is a binary dominate b?"
 def is_bd(a,b):
     try:
-        obj_a=a.getobj()
+        obj_a=getobj(a)
     except:
         obj_a=a
     try:
-        obj_b=b.getobj()
+        obj_b=getobj(b)
     except:
         obj_b=b
     if obj_a==obj_b:
         return False
     for i in xrange(a.objnum):
-        if obj_b[i]<obj_a[i]:
+        if Better(obj_b[i],obj_a[i]):
             return False
     return True
 
@@ -35,7 +48,7 @@ def inbox(pebble,frontier):
 "estimate hyper volumn of frontier"
 def hve(frontier,min,max,sample=100000):
     count=0
-    m=frontier[0].objnum
+    m=len(getobj(frontier[0]))
     for i in xrange(sample):
         pebble=[uniform(min[k],max[k]) for k in xrange(m)]
         if inbox(pebble,frontier):
